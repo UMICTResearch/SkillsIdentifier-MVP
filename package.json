@@ -42,7 +42,7 @@
     "firebase": "^7.15.1",
     "ionic-angular": "3.9.2",
     "ionicons": "3.0.0",
-    "jspdf": "^1.4.1",
+    "jspdf": "^2.3.1",
     "method-override": "^3.0.0",
     "morgan": "^1.10.0",
     "multer": "^1.4.2",
