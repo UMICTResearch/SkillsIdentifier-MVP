@@ -7,6 +7,8 @@ import { JobDataProvider } from '../../providers/job-data/job-data';
 import { FootbarComponent } from '../../components/footbar/footbar';
 import { jobInformation, skillInformation } from '../../assets/data/dataModel';
 
+import { TranslateService } from '@ngx-translate/core';
+
 
 @IonicPage({
 	name: "skills",
@@ -36,7 +38,10 @@ export class SkillsPage {
 	skillsNeededLength: number;
   // resume lines need to be stored as objects; there are issues with strings being a primitive.
 	resumeTemplate: any = [];
-	resumeIntro: string = "<Entrez votre nom complet ici>\n<Entrez votre numéro de téléphone ici>\n<Entrez votre email ici>"
+  name: string = this.translate.instant("ENTER YOUR FULL NAME HERE")
+  phone: string = this.translate.instant("ENTER YOUR PHONE NUMBER HERE")
+  email: string = this.translate.instant("ENTER YOUR EMAIL HERE")
+	resumeIntro: string = this.name + "\n" + this.phone + "\n" + this.email
 
 	emailForm: FormGroup;
 	emailAddress: string = '';
@@ -50,7 +55,8 @@ export class SkillsPage {
 				private _alertCtrl: AlertController,
 				public navParams: NavParams,
 				private _jobDataProvider: JobDataProvider,
-				private _modalCtrl: ModalController) {
+				private _modalCtrl: ModalController,
+        public translate: TranslateService) {
 
 		this.currentJob = this._jobDataProvider.currentJob;
 		this.dreamJob   = this._jobDataProvider.dreamJob;
@@ -85,9 +91,9 @@ export class SkillsPage {
 	// gets the most important skills for the target job from the Data@Work API
 	async identifyRequiredSkills() {
 		// get skills for the target (dream) job and record the top ten skills
-		this._jobDataProvider.getSkillset(this.dreamJob.id)
+		this._jobDataProvider.getSkillset(this.dreamJob.id, this.translate.currentLang)
 		.subscribe(res => {
-			//console.log(res);
+			console.log(res);
 			this.skillsRequired = [];
 			for (var i = 0; i < res.length; i++) {
 				this.skillsRequired.push(res[i])
@@ -108,10 +114,10 @@ export class SkillsPage {
 
 			if (job.title != '') {
 				console.log("Index = " + index)
-				this._jobDataProvider.getSkillset(job.id)
+				this._jobDataProvider.getSkillset(job.id, this.translate.currentLang)
 					.subscribe(res => {
 						//console.log("skill response for " + job.title);
-						//console.log(res);
+						console.log(res);
 						// this.skillsPossessed[index] = [];
 						var k = 0;
 						var max = 3;

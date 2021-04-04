@@ -7,6 +7,8 @@ import { jobInformation} from '../../assets/data/dataModel';
 import { SkillsPage } from '../skills/skills';
 import firebase from 'firebase';
 
+import { TranslateService } from '@ngx-translate/core';
+
 const firebaseConfig = {
 	apiKey: "AIzaSyAxfa8y78nO9x_mIPkxJpLtzSa7RGt99_o",
 	authDomain: "skillsidentifier.firebaseapp.com",
@@ -29,7 +31,7 @@ const firebaseConfig = {
 })
 
 export class HomePage {
-
+  lang:any;
 	private db: any;
 	currentJob = [ {'title': '', 'id': ''},  {'title': '', 'id': ''}, {'title': '', 'id': ''}, {'title': '', 'id': ''}, {'title': '', 'id': ''}, {'title': '', 'id': ''} ];
 	dreamJob = {'title': '', 'id': ''};
@@ -46,8 +48,12 @@ export class HomePage {
 
 	constructor(public navCtrl: NavController,
 				public modalCtrl: ModalController,
-				private _jobDataProvider: JobDataProvider) {
+				private _jobDataProvider: JobDataProvider,
+        public translate: TranslateService) {
 				try {
+          this.lang = 'en';
+          this.translate.setDefaultLang('en');
+          this.translate.use('en');
 					firebase.initializeApp(firebaseConfig);
 					this.db = firebase.database();
 				}
@@ -55,8 +61,11 @@ export class HomePage {
 					firebase.app();
 					this.db = firebase.database();
 				}
-			 	
 	}
+
+  switchLanguage() {
+    this.translate.use(this.lang);
+  }
 
 	ngOnInit(){
 		this.infoForm = new FormGroup({
@@ -97,7 +106,7 @@ export class HomePage {
 
 		if (event.key != "ArrowDown" && event.key != "ArrowUp" && event.key != "Enter")
 			if (this.currentJob[i].title.length > 3) {
-				this._jobDataProvider.getJobAutocomplete(this.currentJob[i].title)
+				this._jobDataProvider.getJobAutocomplete(this.currentJob[i].title, this.translate.currentLang)
 				.subscribe(res => {
 					this.jobAutocompleteList = res;
 					this.currentSelected = 0;
@@ -123,7 +132,7 @@ export class HomePage {
 	async onInputDreamJob(event: any){
 		if (event.key != "ArrowDown" && event.key != "ArrowUp" && event.key != "Enter")
 			if (this.dreamJob.title.length > 3) {
-				this._jobDataProvider.getJobAutocomplete(this.dreamJob.title)
+				this._jobDataProvider.getJobAutocomplete(this.dreamJob.title, this.translate.currentLang)
 				.subscribe(res => {
 					this.jobAutocompleteList = res;
 					this.currentSelected = 0;
@@ -148,7 +157,7 @@ export class HomePage {
 
 	async onChangeJobTitle(event: any){
 		if (event.value.length > 3) {
-			this._jobDataProvider.getJobAutocomplete(event.value)
+			this._jobDataProvider.getJobAutocomplete(event.value, this.translate.currentLang)
 			.subscribe(res => {
 				this.jobAutocompleteList = res;
 			})
@@ -196,20 +205,29 @@ export class HomePage {
 	}
 
 	private logData(){
-			let dataRef = this.db.ref('/entries');
-			let jobRef = dataRef.push();
-            let date = new Date();
+			// let dataRef = this.db.ref('/entries');
+			// let jobRef = dataRef.push();
+      //       let date = new Date();
 
-			let dataRecord = {
-				dream: this.dreamJob.title,
-				pastJob1: this.currentJob[0].title,
-				pastJob2: this.currentJob[1].title,
-				pastJob3: this.currentJob[2].title,
-				pastJob4: this.currentJob[3].title,
-                timestamp: date.toLocaleString(),
-			}
-			jobRef.set(dataRecord)
+			// let dataRecord = {
+			// 	dream: this.dreamJob.title,
+			// 	pastJob1: this.currentJob[0].title,
+			// 	pastJob2: this.currentJob[1].title,
+			// 	pastJob3: this.currentJob[2].title,
+			// 	pastJob4: this.currentJob[3].title,
+      //           timestamp: date.toLocaleString(),
+			// }
+			// jobRef.set(dataRecord)
 			//dataRef.set({currentJobs: this.currentJob[0].title});
+      let date = new Date().toISOString().slice(0, 10);;
+      for(let i = 0; i < 4; i++){
+        if(this.currentJob[i].title == ""){
+          this.currentJob[i].title = "null";
+        }
+      }
+      this._jobDataProvider.writeLog(this.dreamJob.title, this.currentJob[0].title,
+        this.currentJob[1].title, this.currentJob[2].title, this.currentJob[3].title,
+        date);
 	}
 
 }
